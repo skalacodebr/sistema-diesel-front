@@ -6,7 +6,7 @@ import { useState, useMemo, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { Search, ChevronLeft, ChevronRight, LayoutDashboard, Package, Car, Users, UserCheck, Truck, LogOut } from "lucide-react"
+import { Search, ChevronLeft, ChevronRight, LayoutDashboard, Package, LogOut } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import type { EmpresaMae } from "@/lib/types"
 import { logout } from "@/lib/auth"
@@ -37,7 +37,7 @@ export function Sidebar({ empresa, user }: SidebarProps) {
     setLogoError(false)
   }, [empresa])
 
-  // Define menu items (Dashboard, Products and Vehicles)
+  // Define menu items (Dashboard and Products)
   const menuItems: MenuItem[] = useMemo(
     () => [
       {
@@ -51,30 +51,6 @@ export function Sidebar({ empresa, user }: SidebarProps) {
         icon: Package,
         href: `/${empresa.slug}/dashboard/produtos`,
         active: pathname.includes("/dashboard/produtos"),
-      },
-      {
-        title: "Veículos",
-        icon: Car,
-        href: `/${empresa.slug}/dashboard/veiculos`,
-        active: pathname.includes("/dashboard/veiculos"),
-      },
-      {
-        title: "Grupos de Clientes",
-        icon: Users,
-        href: `/${empresa.slug}/dashboard/grupos-clientes`,
-        active: pathname.includes("/dashboard/grupos-clientes"),
-      },
-      {
-        title: "Clientes",
-        icon: UserCheck,
-        href: `/${empresa.slug}/dashboard/clientes`,
-        active: pathname.includes("/dashboard/clientes"),
-      },
-      {
-        title: "Fornecedores",
-        icon: Truck,
-        href: `/${empresa.slug}/dashboard/fornecedores`,
-        active: pathname.includes("/dashboard/fornecedores"),
       },
     ],
     [empresa.slug, pathname],

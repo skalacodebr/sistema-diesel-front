@@ -141,7 +141,7 @@ export interface MarcaVeiculo {
 export interface ModeloVeiculo {
   id: number
   nome: string
-  marcas_veiculos_id: number
+  marca_veiculo_id: number
   marca?: MarcaVeiculo
   created_at?: string
   updated_at?: string
@@ -163,109 +163,6 @@ export interface Veiculo {
   }
   created_at?: string
   updated_at?: string
-}
-
-export interface GrupoCliente {
-  id?: number
-  nome: string
-  created_at?: string
-  updated_at?: string
-}
-
-export interface TipoPessoa {
-  id: number
-  nome: string
-  created_at?: string
-  updated_at?: string
-}
-
-export interface IndicadorIe {
-  id: number
-  nome: string
-  created_at?: string
-  updated_at?: string
-}
-
-export interface TipoContato {
-  id: number
-  nome: string
-  created_at?: string
-  updated_at?: string
-}
-
-export interface TipoEndereco {
-  id: number
-  nome: string
-  created_at?: string
-  updated_at?: string
-}
-
-export interface TipoRepresentante {
-  id: number
-  nome: string
-  created_at?: string
-  updated_at?: string
-}
-
-export interface Cliente {
-  id?: number
-  empresa_mae_id?: number
-  grupos_clientes_id?: number
-  consumidor_final?: boolean
-  imagem_url?: string
-  razao_social?: string
-  nome_fantasia?: string
-  tipo_pessoa_id?: number
-  cpf_cnpj?: string
-  ie_rg?: string
-  indicador_ie_id?: number
-  data_nascimento?: string
-  contribuinte?: boolean
-  produtor_rural?: boolean
-  inscricao_municipal?: string
-  inscricao_suframa?: number
-  isento_icms?: boolean
-  isento_ipi?: boolean
-  isento_iss?: boolean
-  isento_pis?: boolean
-  isento_cofins?: boolean
-  isento_ii?: boolean
-  created_at?: string
-  updated_at?: string
-  // Relacionamentos (as returned by the API)
-  empresa_mae?: EmpresaMae
-  grupo_cliente?: GrupoCliente
-  tipo_pessoa?: TipoPessoa
-  indicador_ie?: IndicadorIe
-}
-
-export interface Fornecedor {
-  id?: number
-  empresa_mae_id?: number
-  imagem_url?: string
-  razao_social?: string
-  nome_fantasia?: string
-  tipo_pessoa_id?: number
-  cpf_cnpj?: string
-  ie_rg?: string
-  indicador_ie_id?: number
-  data_nascimento?: string
-  contribuinte?: boolean
-  produtor_rural?: boolean
-  inscricao_municipal?: string
-  inscricao_suframa?: number
-  isento_icms?: boolean
-  isento_ipi?: boolean
-  isento_iss?: boolean
-  isento_pis?: boolean
-  isento_cofins?: boolean
-  isento_ii?: boolean
-  created_at?: string
-  updated_at?: string
-  // Relacionamentos (as returned by the API)
-  empresa_mae?: EmpresaMae
-  tipo_pessoa?: TipoPessoa
-  indicador_ie?: IndicadorIe
 }
 
 export interface ColunaConfig {
