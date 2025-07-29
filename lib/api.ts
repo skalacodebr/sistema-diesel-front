@@ -1,4 +1,4 @@
-import type { EmpresaMae, LoginCredentials, LoginResponse, Produto, AliquotaProduto, Veiculo, MarcaVeiculo, ModeloVeiculo, GrupoCliente, Cliente, Fornecedor, FornecedorContato, FornecedorTributacao, FornecedorEndereco, FornecedorRepresentante, FornecedorDadoBancario, TipoPessoa, IndicadorIe, TipoContato, TipoEndereco, TipoRepresentante, Usuario, ChatMensagem, Conversa, MensagensNaoLidas } from "./types"
+import type { EmpresaMae, LoginCredentials, LoginResponse, Produto, AliquotaProduto, Veiculo, MarcaVeiculo, ModeloVeiculo, GrupoCliente, Cliente, Fornecedor, FornecedorContato, FornecedorTributacao, FornecedorEndereco, FornecedorRepresentante, FornecedorDadoBancario, TipoPessoa, IndicadorIe, TipoContato, TipoEndereco, TipoRepresentante, Usuario, ChatMensagem, Conversa, MensagensNaoLidas, Servico, OrdemServico, CategoriaServico, UnidadeCobranca, StatusOrdemServico, FormaPagamento } from "./types"
 import { getEmpresaId } from "./auth"
 
 const API_BASE_URL = "https://sistema-diesel-2025-main-vv6tyd.laravel.cloud/api"
@@ -1692,6 +1692,595 @@ export async function deleteFornecedorEndereco(id: number, token: string): Promi
     }
   } catch (error) {
     console.error(`Failed to delete fornecedor endereco ${id}:`, error)
+    throw error
+  }
+}
+
+// Servicos API
+export async function getServicos(token: string): Promise<Servico[]> {
+  try {
+    const response = await fetch(getApiUrl("servicos"), {
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(`Falha ao buscar serviços: ${response.status}`)
+    }
+
+    const result = await response.json()
+    return result.data || result
+  } catch (error) {
+    console.error("Failed to fetch servicos:", error)
+    throw error
+  }
+}
+
+export async function getServico(id: number, token: string): Promise<Servico> {
+  try {
+    const response = await fetch(getApiUrl(`servicos/${id}`), {
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(`Falha ao buscar serviço: ${response.status}`)
+    }
+
+    return response.json()
+  } catch (error) {
+    console.error(`Failed to fetch servico ${id}:`, error)
+    throw error
+  }
+}
+
+export async function createServico(servico: Servico, token: string): Promise<Servico> {
+  try {
+    const response = await fetch(getApiUrl("servicos"), {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(servico),
+    })
+
+    if (!response.ok) {
+      let errorMessage = `Falha ao criar serviço: ${response.status}`
+      try {
+        const errorData = await response.json()
+        errorMessage = errorData.message || errorMessage
+      } catch (e) {
+        // Uses default message
+      }
+      throw new Error(errorMessage)
+    }
+
+    return response.json()
+  } catch (error) {
+    console.error("Failed to create servico:", error)
+    throw error
+  }
+}
+
+export async function updateServico(id: number, servico: Servico, token: string): Promise<Servico> {
+  try {
+    const response = await fetch(getApiUrl(`servicos/${id}`), {
+      method: "PUT",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(servico),
+    })
+
+    if (!response.ok) {
+      const contentType = response.headers.get("content-type")
+      if (contentType && contentType.includes("application/json")) {
+        const errorData = await response.json()
+        throw new Error(errorData.message || `Falha ao atualizar serviço: ${response.status}`)
+      } else {
+        throw new Error(`Falha ao atualizar serviço. Status: ${response.status}`)
+      }
+    }
+
+    return response.json()
+  } catch (error) {
+    console.error(`Failed to update servico ${id}:`, error)
+    throw error
+  }
+}
+
+export async function deleteServico(id: number, token: string): Promise<void> {
+  try {
+    const response = await fetch(getApiUrl(`servicos/${id}`), {
+      method: "DELETE",
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    if (!response.ok) {
+      let errorMessage = `Falha ao excluir serviço: ${response.status}`
+      try {
+        const errorData = await response.json()
+        errorMessage = errorData.message || errorMessage
+      } catch (e) {
+        // Uses default message
+      }
+      throw new Error(errorMessage)
+    }
+  } catch (error) {
+    console.error(`Failed to delete servico ${id}:`, error)
+    throw error
+  }
+}
+
+// Ordens de Servico API
+export async function getOrdensServico(token: string): Promise<OrdemServico[]> {
+  try {
+    const response = await fetch(getApiUrl("ordens-servico"), {
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(`Falha ao buscar ordens de serviço: ${response.status}`)
+    }
+
+    const result = await response.json()
+    return result.data || result
+  } catch (error) {
+    console.error("Failed to fetch ordens servico:", error)
+    throw error
+  }
+}
+
+export async function getOrdemServico(id: number, token: string): Promise<OrdemServico> {
+  try {
+    const response = await fetch(getApiUrl(`ordens-servico/${id}`), {
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(`Falha ao buscar ordem de serviço: ${response.status}`)
+    }
+
+    return response.json()
+  } catch (error) {
+    console.error(`Failed to fetch ordem servico ${id}:`, error)
+    throw error
+  }
+}
+
+export async function createOrdemServico(ordemServico: OrdemServico, token: string): Promise<OrdemServico> {
+  try {
+    const response = await fetch(getApiUrl("ordens-servico"), {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(ordemServico),
+    })
+
+    if (!response.ok) {
+      let errorMessage = `Falha ao criar ordem de serviço: ${response.status}`
+      try {
+        const errorData = await response.json()
+        errorMessage = errorData.message || errorMessage
+      } catch (e) {
+        // Uses default message
+      }
+      throw new Error(errorMessage)
+    }
+
+    return response.json()
+  } catch (error) {
+    console.error("Failed to create ordem servico:", error)
+    throw error
+  }
+}
+
+export async function updateOrdemServico(id: number, ordemServico: OrdemServico, token: string): Promise<OrdemServico> {
+  try {
+    const response = await fetch(getApiUrl(`ordens-servico/${id}`), {
+      method: "PUT",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(ordemServico),
+    })
+
+    if (!response.ok) {
+      const contentType = response.headers.get("content-type")
+      if (contentType && contentType.includes("application/json")) {
+        const errorData = await response.json()
+        throw new Error(errorData.message || `Falha ao atualizar ordem de serviço: ${response.status}`)
+      } else {
+        throw new Error(`Falha ao atualizar ordem de serviço. Status: ${response.status}`)
+      }
+    }
+
+    return response.json()
+  } catch (error) {
+    console.error(`Failed to update ordem servico ${id}:`, error)
+    throw error
+  }
+}
+
+export async function deleteOrdemServico(id: number, token: string): Promise<void> {
+  try {
+    const response = await fetch(getApiUrl(`ordens-servico/${id}`), {
+      method: "DELETE",
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    if (!response.ok) {
+      let errorMessage = `Falha ao excluir ordem de serviço: ${response.status}`
+      try {
+        const errorData = await response.json()
+        errorMessage = errorData.message || errorMessage
+      } catch (e) {
+        // Uses default message
+      }
+      throw new Error(errorMessage)
+    }
+  } catch (error) {
+    console.error(`Failed to delete ordem servico ${id}:`, error)
+    throw error
+  }
+}
+
+// Auxiliary APIs for dropdowns
+export async function getCategoriasServicos(token: string): Promise<CategoriaServico[]> {
+  try {
+    const response = await fetch(getApiUrl("categorias-servicos"), {
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`)
+    }
+
+    const data = await response.json()
+    return Array.isArray(data) ? data : data.data || []
+  } catch (error) {
+    console.error("Failed to fetch categorias servicos:", error)
+    throw error
+  }
+}
+
+export async function getUnidadesCobranca(token: string): Promise<UnidadeCobranca[]> {
+  try {
+    const response = await fetch(getApiUrl("unidades-cobranca"), {
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`)
+    }
+
+    const data = await response.json()
+    return Array.isArray(data) ? data : data.data || []
+  } catch (error) {
+    console.error("Failed to fetch unidades cobranca:", error)
+    throw error
+  }
+}
+
+export async function getStatusOrdensServico(token: string): Promise<StatusOrdemServico[]> {
+  try {
+    const response = await fetch(getApiUrl("status-ordens-servico"), {
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`)
+    }
+
+    const data = await response.json()
+    return Array.isArray(data) ? data : data.data || []
+  } catch (error) {
+    console.error("Failed to fetch status ordens servico:", error)
+    throw error
+  }
+}
+
+export async function getFormasPagamento(token: string): Promise<FormaPagamento[]> {
+  try {
+    const response = await fetch(getApiUrl("formas-pagamento"), {
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`)
+    }
+
+    const data = await response.json()
+    return Array.isArray(data) ? data : data.data || []
+  } catch (error) {
+    console.error("Failed to fetch formas pagamento:", error)
+    throw error
+  }
+}
+
+// Ordens Servico Servicos API
+export async function createOrdemServicoServico(ordemServicoServico: any, token: string): Promise<any> {
+  try {
+    const response = await fetch(getApiUrl("ordens-servico-servicos"), {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(ordemServicoServico),
+    })
+
+    if (!response.ok) {
+      let errorMessage = `Falha ao criar serviço da ordem: ${response.status}`
+      try {
+        const errorData = await response.json()
+        errorMessage = errorData.message || errorMessage
+      } catch (e) {
+        // Uses default message
+      }
+      throw new Error(errorMessage)
+    }
+
+    return response.json()
+  } catch (error) {
+    console.error("Failed to create ordem servico servico:", error)
+    throw error
+  }
+}
+
+export async function deleteOrdemServicoServico(id: number, token: string): Promise<void> {
+  try {
+    const response = await fetch(getApiUrl(`ordens-servico-servicos/${id}`), {
+      method: "DELETE",
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    if (!response.ok) {
+      let errorMessage = `Falha ao excluir serviço da ordem: ${response.status}`
+      try {
+        const errorData = await response.json()
+        errorMessage = errorData.message || errorMessage
+      } catch (e) {
+        // Uses default message
+      }
+      throw new Error(errorMessage)
+    }
+  } catch (error) {
+    console.error(`Failed to delete ordem servico servico ${id}:`, error)
+    throw error
+  }
+}
+
+// Ordens Servico Produtos API
+export async function createOrdemServicoProduto(ordemServicoProduto: any, token: string): Promise<any> {
+  try {
+    const response = await fetch(getApiUrl("ordens-servico-produtos"), {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(ordemServicoProduto),
+    })
+
+    if (!response.ok) {
+      let errorMessage = `Falha ao criar produto da ordem: ${response.status}`
+      try {
+        const errorData = await response.json()
+        errorMessage = errorData.message || errorMessage
+      } catch (e) {
+        // Uses default message
+      }
+      throw new Error(errorMessage)
+    }
+
+    return response.json()
+  } catch (error) {
+    console.error("Failed to create ordem servico produto:", error)
+    throw error
+  }
+}
+
+export async function deleteOrdemServicoProduto(id: number, token: string): Promise<void> {
+  try {
+    const response = await fetch(getApiUrl(`ordens-servico-produtos/${id}`), {
+      method: "DELETE",
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    if (!response.ok) {
+      let errorMessage = `Falha ao excluir produto da ordem: ${response.status}`
+      try {
+        const errorData = await response.json()
+        errorMessage = errorData.message || errorMessage
+      } catch (e) {
+        // Uses default message
+      }
+      throw new Error(errorMessage)
+    }
+  } catch (error) {
+    console.error(`Failed to delete ordem servico produto ${id}:`, error)
+    throw error
+  }
+}
+
+// Ordens Servico Funcionarios API
+export async function createOrdemServicoFuncionario(ordemServicoFuncionario: any, token: string): Promise<any> {
+  try {
+    const response = await fetch(getApiUrl("ordens-servico-funcionarios"), {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(ordemServicoFuncionario),
+    })
+
+    if (!response.ok) {
+      let errorMessage = `Falha ao criar funcionário da ordem: ${response.status}`
+      try {
+        const errorData = await response.json()
+        errorMessage = errorData.message || errorMessage
+      } catch (e) {
+        // Uses default message
+      }
+      throw new Error(errorMessage)
+    }
+
+    return response.json()
+  } catch (error) {
+    console.error("Failed to create ordem servico funcionario:", error)
+    throw error
+  }
+}
+
+export async function deleteOrdemServicoFuncionario(id: number, token: string): Promise<void> {
+  try {
+    const response = await fetch(getApiUrl(`ordens-servico-funcionarios/${id}`), {
+      method: "DELETE",  
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    if (!response.ok) {
+      let errorMessage = `Falha ao excluir funcionário da ordem: ${response.status}`
+      try {
+        const errorData = await response.json()
+        errorMessage = errorData.message || errorMessage
+      } catch (e) {
+        // Uses default message
+      }
+      throw new Error(errorMessage)
+    }
+  } catch (error) {
+    console.error(`Failed to delete ordem servico funcionario ${id}:`, error)
+    throw error
+  }
+}
+
+// Ordens Servico Formas Pagamento API
+export async function createOrdemServicoFormaPagamento(ordemServicoFormaPagamento: any, token: string): Promise<any> {
+  try {
+    const response = await fetch(getApiUrl("ordens-servico-formas-pagamento"), {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(ordemServicoFormaPagamento),
+    })
+
+    if (!response.ok) {
+      let errorMessage = `Falha ao criar forma de pagamento da ordem: ${response.status}`
+      try {
+        const errorData = await response.json()
+        errorMessage = errorData.message || errorMessage
+      } catch (e) {
+        // Uses default message
+      }
+      throw new Error(errorMessage)
+    }
+
+    return response.json()
+  } catch (error) {
+    console.error("Failed to create ordem servico forma pagamento:", error)
+    throw error
+  }
+}
+
+export async function deleteOrdemServicoFormaPagamento(id: number, token: string): Promise<void> {
+  try {
+    const response = await fetch(getApiUrl(`ordens-servico-formas-pagamento/${id}`), {
+      method: "DELETE",
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    if (!response.ok) {
+      let errorMessage = `Falha ao excluir forma de pagamento da ordem: ${response.status}`
+      try {
+        const errorData = await response.json()
+        errorMessage = errorData.message || errorMessage
+      } catch (e) {
+        // Uses default message
+      }
+      throw new Error(errorMessage)
+    }
+  } catch (error) {
+    console.error(`Failed to delete ordem servico forma pagamento ${id}:`, error)
+    throw error
+  }
+}
+
+// Get Funcionarios for dropdown
+export async function getFuncionarios(token: string): Promise<any[]> {
+  try {
+    const response = await fetch(getApiUrl("funcionarios"), {
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`)
+    }
+
+    const data = await response.json()
+    return Array.isArray(data) ? data : data.data || []
+  } catch (error) {
+    console.error("Failed to fetch funcionarios:", error)
     throw error
   }
 }

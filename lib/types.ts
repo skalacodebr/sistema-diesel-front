@@ -399,3 +399,167 @@ export interface ColunaConfig {
   sortable?: boolean
   width?: string
 }
+
+// Serviços e Ordens de Serviço
+
+export interface CategoriaServico {
+  id: number
+  nome: string
+  created_at?: string
+  updated_at?: string
+}
+
+export interface UnidadeCobranca {
+  id: number
+  nome: string
+  created_at?: string
+  updated_at?: string
+}
+
+export interface Servico {
+  id?: number
+  empresa_mae_id?: number
+  categorias_servicos_id?: number
+  nome: string
+  valor_unitario?: number
+  tempo_servico_minutos?: number
+  percentual_comissao?: number
+  unidades_cobranca_id?: number
+  tempo_adicional?: number
+  valor_adicional?: number
+  tempo_tolerancia?: number
+  codigo_servico?: number
+  percentual_iss?: number
+  percentual_pis?: number
+  percentual_cofins?: number
+  percentual_inss?: number
+  limite_maximo_desconto?: number
+  created_at?: string
+  updated_at?: string
+  // Relacionamentos
+  categoriaServico?: CategoriaServico
+  unidadeCobranca?: UnidadeCobranca
+}
+
+export interface StatusOrdemServico {
+  id: number
+  nome: string
+  created_at?: string
+  updated_at?: string
+}
+
+export interface OrdemServico {
+  id?: number
+  clientes_id?: number
+  nome: string
+  descricao?: string
+  valor_total_servicos?: number
+  valor_total_produtos?: number
+  status?: string
+  data_emissao?: string
+  valor_total?: number
+  observacoes_cliente?: string
+  observacoes_internas?: string
+  status_ordens_servico_id?: number
+  created_at?: string
+  updated_at?: string
+  // Relacionamentos
+  cliente?: Cliente
+  statusOrdemServico?: StatusOrdemServico
+  servicos?: OrdemServicoServico[]
+  produtos?: OrdemServicoProduto[]
+  funcionarios?: OrdemServicoFuncionario[]
+  formasPagamento?: OrdemServicoFormaPagamento[]
+  feedback?: OrdemServicoFeedback[]
+}
+
+export interface OrdemServicoServico {
+  id?: number
+  ordens_servico_id: number
+  servicos_id: number
+  quantidade: number
+  valor_unitario: number
+  valor_desconto?: number
+  created_at?: string
+  updated_at?: string
+  // Relacionamentos
+  ordemServico?: OrdemServico
+  servico?: Servico
+  aprovacaoDesconto?: AprovacaoDescontoOrdemServicoServico
+}
+
+export interface OrdemServicoProduto {
+  id?: number
+  ordens_servico_id: number
+  produtos_id: number
+  quantidade: number
+  valor_unitario: number
+  created_at?: string
+  updated_at?: string
+  // Relacionamentos
+  ordemServico?: OrdemServico
+  produto?: Produto
+  aprovacaoDesconto?: AprovacaoDescontoOrdemServicoProduto
+}
+
+export interface OrdemServicoFuncionario {
+  id?: number
+  ordens_servico_id: number
+  funcionarios_id: number
+  created_at?: string
+  updated_at?: string
+  // Relacionamentos
+  ordemServico?: OrdemServico
+  funcionario?: any
+}
+
+export interface FormaPagamento {
+  id: number
+  nome: string
+  created_at?: string
+  updated_at?: string
+}
+
+export interface OrdemServicoFormaPagamento {
+  id?: number
+  ordens_servico_id: number
+  formas_pagamento_id: number
+  valor: number
+  created_at?: string
+  updated_at?: string
+  // Relacionamentos
+  ordemServico?: OrdemServico
+  formaPagamento?: FormaPagamento
+}
+
+export interface OrdemServicoFeedback {
+  id?: number
+  ordens_servico_id: number
+  clientes_id: number
+  descricao: string
+  created_at?: string
+  updated_at?: string
+  // Relacionamentos
+  ordemServico?: OrdemServico
+  cliente?: Cliente
+}
+
+export interface AprovacaoDescontoOrdemServicoServico {
+  id?: number
+  ordens_servico_servicos_id: number
+  aprovado: boolean
+  created_at?: string
+  updated_at?: string
+  // Relacionamentos
+  ordemServicoServico?: OrdemServicoServico
+}
+
+export interface AprovacaoDescontoOrdemServicoProduto {
+  id?: number
+  ordens_servico_produtos_id: number
+  aprovado: boolean
+  created_at?: string
+  updated_at?: string
+  // Relacionamentos
+  ordemServicoProduto?: OrdemServicoProduto
+}

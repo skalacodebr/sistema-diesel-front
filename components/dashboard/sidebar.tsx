@@ -6,7 +6,7 @@ import { useState, useMemo, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { Search, ChevronLeft, ChevronRight, LayoutDashboard, Package, Car, Users, UserCheck, Truck, MessageCircle, LogOut } from "lucide-react"
+import { Search, ChevronLeft, ChevronRight, LayoutDashboard, Package, Car, Users, UserCheck, Truck, MessageCircle, LogOut, Wrench, ClipboardList, Settings, Kanban } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import type { EmpresaMae } from "@/lib/types"
 import { logout } from "@/lib/auth"
@@ -77,10 +77,34 @@ export function Sidebar({ empresa, user }: SidebarProps) {
         active: pathname.includes("/dashboard/fornecedores"),
       },
       {
+        title: "Serviços",
+        icon: Wrench,
+        href: `/${empresa.slug}/dashboard/servicos`,
+        active: pathname.includes("/dashboard/servicos"),
+      },
+      {
+        title: "Ordens de Serviço",
+        icon: ClipboardList,
+        href: `/${empresa.slug}/dashboard/ordens-servico`,
+        active: pathname.includes("/dashboard/ordens-servico"),
+      },
+      {
+        title: "Kanban",
+        icon: Kanban,
+        href: `/${empresa.slug}/dashboard/kanban`,
+        active: pathname.includes("/dashboard/kanban"),
+      },
+      {
         title: "Chat",
         icon: MessageCircle,
         href: `/${empresa.slug}/dashboard/chat`,
         active: pathname.includes("/dashboard/chat"),
+      },
+      {
+        title: "Integrações",
+        icon: Settings,
+        href: `/${empresa.slug}/dashboard/integracoes`,
+        active: pathname.includes("/dashboard/integracoes"),
       },
     ],
     [empresa.slug, pathname],
