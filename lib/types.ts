@@ -262,10 +262,134 @@ export interface Fornecedor {
   isento_ii?: boolean
   created_at?: string
   updated_at?: string
-  // Relacionamentos (as returned by the API)
+  // Relacionamentos (as returned by the API in snake_case)
   empresa_mae?: EmpresaMae
   tipo_pessoa?: TipoPessoa
   indicador_ie?: IndicadorIe
+  contatos?: FornecedorContato[]
+  enderecos?: FornecedorEndereco[]
+  tributacao?: FornecedorTributacao[]
+  representantes?: FornecedorRepresentante[]
+  dadosBancarios?: FornecedorDadoBancario[]
+}
+
+export interface FornecedorContato {
+  id?: number
+  fornecedores_id: number
+  tipos_contatos_id?: number
+  email?: string
+  telefone?: string
+  celular?: string
+  created_at?: string
+  updated_at?: string
+  fornecedor?: Fornecedor
+  tipoContato?: TipoContato
+}
+
+export interface FornecedorTributacao {
+  id?: number
+  fornecedores_id: number
+  iva?: string
+  csosn_id?: number
+  carga_tributaria_percentual?: number
+  fornecedor_desde?: string
+  created_at?: string
+  updated_at?: string
+  fornecedor?: Fornecedor
+  csosn?: any
+}
+
+export interface FornecedorEndereco {
+  id?: number
+  fornecedores_id: number
+  tipos_endereco_id?: number
+  cep?: string
+  pais?: string
+  estado?: string
+  cidade?: string
+  bairro?: string
+  rua?: string
+  numero?: number
+  complemento?: string
+  created_at?: string
+  updated_at?: string
+  fornecedor?: Fornecedor
+  tipoEndereco?: TipoEndereco
+}
+
+export interface FornecedorRepresentante {
+  id?: number
+  fornecedores_id: number
+  tipos_representantes_id?: number
+  nome?: string
+  documento?: string
+  created_at?: string
+  updated_at?: string
+  fornecedor?: Fornecedor
+  tipoRepresentante?: TipoRepresentante
+}
+
+export interface FornecedorDadoBancario {
+  id?: number
+  fornecedores_id: number
+  banco?: string
+  agencia?: number
+  numero_conta?: number
+  tipos_contas_bancarias_id?: number
+  chave_pix?: string
+  created_at?: string
+  updated_at?: string
+  fornecedor?: Fornecedor
+  tipoContaBancaria?: any
+}
+
+export interface Usuario {
+  id: number
+  nome: string
+  email: string
+  ativo: boolean
+  funcionarios_id?: number
+  cargos_id?: number
+  created_at?: string
+  updated_at?: string
+  cargo?: any
+  funcionario?: any
+  tem_conversa?: boolean
+}
+
+export interface ChatMensagem {
+  id?: number
+  remetente_id: number
+  destinatario_id: number
+  mensagem: string
+  lida?: boolean
+  created_at?: string
+  updated_at?: string
+  deleted_at?: string
+  // Relacionamentos
+  remetente?: Usuario
+  destinatario?: Usuario
+}
+
+export interface Conversa {
+  id?: number
+  remetente_id: number
+  destinatario_id: number
+  mensagem: string
+  lida?: boolean
+  created_at?: string
+  updated_at?: string
+  remetente?: Usuario
+  destinatario?: Usuario
+}
+
+export interface MensagensNaoLidas {
+  total: number
+  por_usuario: {
+    remetente_id: number
+    total: number
+    remetente?: Usuario
+  }[]
 }
 
 export interface ColunaConfig {

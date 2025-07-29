@@ -1,4 +1,4 @@
-import type { EmpresaMae, LoginCredentials, LoginResponse, Produto, AliquotaProduto, Veiculo, MarcaVeiculo, ModeloVeiculo, GrupoCliente, Cliente, Fornecedor, TipoPessoa, IndicadorIe, TipoContato, TipoEndereco, TipoRepresentante } from "./types"
+import type { EmpresaMae, LoginCredentials, LoginResponse, Produto, AliquotaProduto, Veiculo, MarcaVeiculo, ModeloVeiculo, GrupoCliente, Cliente, Fornecedor, FornecedorContato, FornecedorTributacao, FornecedorEndereco, FornecedorRepresentante, FornecedorDadoBancario, TipoPessoa, IndicadorIe, TipoContato, TipoEndereco, TipoRepresentante, Usuario, ChatMensagem, Conversa, MensagensNaoLidas } from "./types"
 import { getEmpresaId } from "./auth"
 
 const API_BASE_URL = "https://sistema-diesel-2025-main-vv6tyd.laravel.cloud/api"
@@ -990,7 +990,7 @@ export async function getTiposContatos(token: string): Promise<TipoContato[]> {
 
 // Tipos Endereco API
 
-export async function getTiposEndereco(token: string): Promise<TipoEndereco[]> {
+export async function getTiposEnderecos(token: string): Promise<TipoEndereco[]> {
   try {
     const response = await fetch(getApiUrl("tipos-endereco"), {
       headers: {
@@ -1030,6 +1030,52 @@ export async function getTiposRepresentantes(token: string): Promise<TipoReprese
     return Array.isArray(data) ? data : data.data || []
   } catch (error) {
     console.error("Failed to fetch tipos representantes:", error)
+    throw error
+  }
+}
+
+// Tipos Contas Bancarias API
+
+export async function getTiposContasBancarias(token: string): Promise<any[]> {
+  try {
+    const response = await fetch(getApiUrl("tipos-contas-bancarias"), {
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`)
+    }
+
+    const data = await response.json()
+    return Array.isArray(data) ? data : data.data || []
+  } catch (error) {
+    console.error("Failed to fetch tipos contas bancarias:", error)
+    throw error
+  }
+}
+
+// CSOSN API
+
+export async function getCsosn(token: string): Promise<any[]> {
+  try {
+    const response = await fetch(getApiUrl("csosn"), {
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`)
+    }
+
+    const data = await response.json()
+    return Array.isArray(data) ? data : data.data || []
+  } catch (error) {
+    console.error("Failed to fetch csosn:", error)
     throw error
   }
 }
@@ -1285,6 +1331,367 @@ export async function deleteFornecedor(id: number, token: string): Promise<void>
     }
   } catch (error) {
     console.error(`Failed to delete fornecedor ${id}:`, error)
+    throw error
+  }
+}
+
+// Chat Mensagens API
+export async function getUsuariosDisponiveis(token: string): Promise<Usuario[]> {
+  try {
+    const response = await fetch(getApiUrl("chat-mensagens/usuarios-disponiveis"), {
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(`Falha ao buscar usuários disponíveis: ${response.status}`)
+    }
+
+    return response.json()
+  } catch (error) {
+    console.error("Failed to fetch usuarios disponiveis:", error)
+    throw error
+  }
+}
+
+export async function getConversas(token: string): Promise<Conversa[]> {
+  try {
+    const response = await fetch(getApiUrl("chat-mensagens/conversas"), {
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(`Falha ao buscar conversas: ${response.status}`)
+    }
+
+    return response.json()
+  } catch (error) {
+    console.error("Failed to fetch conversas:", error)
+    throw error
+  }
+}
+
+export async function getMensagensComUsuario(usuarioId: number, token: string): Promise<{data: ChatMensagem[], current_page: number, last_page: number, total: number}> {
+  try {
+    const response = await fetch(getApiUrl(`chat-mensagens/usuario/${usuarioId}`), {
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(`Falha ao buscar mensagens: ${response.status}`)
+    }
+
+    return response.json()
+  } catch (error) {
+    console.error(`Failed to fetch mensagens com usuario ${usuarioId}:`, error)
+    throw error
+  }
+}
+
+export async function enviarMensagem(destinatarioId: number, mensagem: string, token: string): Promise<ChatMensagem> {
+  try {
+    const response = await fetch(getApiUrl("chat-mensagens"), {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        destinatario_id: destinatarioId,
+        mensagem: mensagem,
+      }),
+    })
+
+    if (!response.ok) {
+      let errorMessage = `Falha ao enviar mensagem: ${response.status}`
+      try {
+        const errorData = await response.json()
+        errorMessage = errorData.message || errorMessage
+      } catch (e) {
+        // Uses default message
+      }
+      throw new Error(errorMessage)
+    }
+
+    return response.json()
+  } catch (error) {
+    console.error("Failed to enviar mensagem:", error)
+    throw error
+  }
+}
+
+export async function getMensagensNaoLidas(token: string): Promise<MensagensNaoLidas> {
+  try {
+    const response = await fetch(getApiUrl("chat-mensagens/nao-lidas"), {
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(`Falha ao buscar mensagens não lidas: ${response.status}`)
+    }
+
+    return response.json()
+  } catch (error) {
+    console.error("Failed to fetch mensagens nao lidas:", error)
+    throw error
+  }
+}
+
+export async function marcarMensagemComoLida(mensagemId: number, token: string): Promise<void> {
+  try {
+    const response = await fetch(getApiUrl(`chat-mensagens/${mensagemId}/lida`), {
+      method: "PUT",
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    if (!response.ok) {
+      let errorMessage = `Falha ao marcar mensagem como lida: ${response.status}`
+      try {
+        const errorData = await response.json()
+        errorMessage = errorData.message || errorMessage
+      } catch (e) {
+        // Uses default message
+      }
+      throw new Error(errorMessage)
+    }
+  } catch (error) {
+    console.error(`Failed to marcar mensagem ${mensagemId} como lida:`, error)
+    throw error
+  }
+}
+
+export async function deletarMensagem(mensagemId: number, token: string): Promise<void> {
+  try {
+    const response = await fetch(getApiUrl(`chat-mensagens/${mensagemId}`), {
+      method: "DELETE",
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    if (!response.ok) {
+      let errorMessage = `Falha ao deletar mensagem: ${response.status}`
+      try {
+        const errorData = await response.json()
+        errorMessage = errorData.message || errorMessage
+      } catch (e) {
+        // Uses default message
+      }
+      throw new Error(errorMessage)
+    }
+  } catch (error) {
+    console.error(`Failed to delete mensagem ${mensagemId}:`, error)
+    throw error
+  }
+}
+
+// Fornecedores Contatos API
+export async function getFornecedoresContatos(token: string): Promise<FornecedorContato[]> {
+  try {
+    const response = await fetch(getApiUrl("fornecedores-contatos"), {
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(`Falha ao buscar contatos de fornecedores: ${response.status}`)
+    }
+
+    const result = await response.json()
+    return result.data || result
+  } catch (error) {
+    console.error("Failed to fetch fornecedores contatos:", error)
+    throw error
+  }
+}
+
+export async function createFornecedorContato(contato: FornecedorContato, token: string): Promise<FornecedorContato> {
+  try {
+    const response = await fetch(getApiUrl("fornecedores-contatos"), {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(contato),
+    })
+
+    if (!response.ok) {
+      let errorMessage = `Falha ao criar contato: ${response.status}`
+      try {
+        const errorData = await response.json()
+        errorMessage = errorData.message || errorMessage
+      } catch (e) {
+        // Uses default message
+      }
+      throw new Error(errorMessage)
+    }
+
+    return response.json()
+  } catch (error) {
+    console.error("Failed to create fornecedor contato:", error)
+    throw error
+  }
+}
+
+export async function updateFornecedorContato(id: number, contato: FornecedorContato, token: string): Promise<FornecedorContato> {
+  try {
+    const response = await fetch(getApiUrl(`fornecedores-contatos/${id}`), {
+      method: "PUT",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(contato),
+    })
+
+    if (!response.ok) {
+      let errorMessage = `Falha ao atualizar contato: ${response.status}`
+      try {
+        const errorData = await response.json()
+        errorMessage = errorData.message || errorMessage
+      } catch (e) {
+        // Uses default message
+      }
+      throw new Error(errorMessage)
+    }
+
+    return response.json()
+  } catch (error) {
+    console.error(`Failed to update fornecedor contato ${id}:`, error)
+    throw error
+  }
+}
+
+export async function deleteFornecedorContato(id: number, token: string): Promise<void> {
+  try {
+    const response = await fetch(getApiUrl(`fornecedores-contatos/${id}`), {
+      method: "DELETE",
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    if (!response.ok) {
+      let errorMessage = `Falha ao excluir contato: ${response.status}`
+      try {
+        const errorData = await response.json()
+        errorMessage = errorData.message || errorMessage
+      } catch (e) {
+        // Uses default message
+      }
+      throw new Error(errorMessage)
+    }
+  } catch (error) {
+    console.error(`Failed to delete fornecedor contato ${id}:`, error)
+    throw error
+  }
+}
+
+// Fornecedores Enderecos API
+export async function createFornecedorEndereco(endereco: FornecedorEndereco, token: string): Promise<FornecedorEndereco> {
+  try {
+    const response = await fetch(getApiUrl("fornecedores-endereco"), {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(endereco),
+    })
+
+    if (!response.ok) {
+      let errorMessage = `Falha ao criar endereço: ${response.status}`
+      try {
+        const errorData = await response.json()
+        errorMessage = errorData.message || errorMessage
+      } catch (e) {
+        // Uses default message
+      }
+      throw new Error(errorMessage)
+    }
+
+    return response.json()
+  } catch (error) {
+    console.error("Failed to create fornecedor endereco:", error)
+    throw error
+  }
+}
+
+export async function updateFornecedorEndereco(id: number, endereco: FornecedorEndereco, token: string): Promise<FornecedorEndereco> {
+  try {
+    const response = await fetch(getApiUrl(`fornecedores-endereco/${id}`), {
+      method: "PUT",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(endereco),
+    })
+
+    if (!response.ok) {
+      let errorMessage = `Falha ao atualizar endereço: ${response.status}`
+      try {
+        const errorData = await response.json()
+        errorMessage = errorData.message || errorMessage
+      } catch (e) {
+        // Uses default message
+      }
+      throw new Error(errorMessage)
+    }
+
+    return response.json()
+  } catch (error) {
+    console.error(`Failed to update fornecedor endereco ${id}:`, error)
+    throw error
+  }
+}
+
+export async function deleteFornecedorEndereco(id: number, token: string): Promise<void> {
+  try {
+    const response = await fetch(getApiUrl(`fornecedores-endereco/${id}`), {
+      method: "DELETE",  
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    if (!response.ok) {
+      let errorMessage = `Falha ao excluir endereço: ${response.status}`
+      try {
+        const errorData = await response.json()
+        errorMessage = errorData.message || errorMessage
+      } catch (e) {
+        // Uses default message
+      }
+      throw new Error(errorMessage)
+    }
+  } catch (error) {
+    console.error(`Failed to delete fornecedor endereco ${id}:`, error)
     throw error
   }
 }

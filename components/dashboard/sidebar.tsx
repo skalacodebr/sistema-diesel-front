@@ -6,7 +6,7 @@ import { useState, useMemo, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { Search, ChevronLeft, ChevronRight, LayoutDashboard, Package, Car, Users, UserCheck, Truck, LogOut } from "lucide-react"
+import { Search, ChevronLeft, ChevronRight, LayoutDashboard, Package, Car, Users, UserCheck, Truck, MessageCircle, LogOut } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import type { EmpresaMae } from "@/lib/types"
 import { logout } from "@/lib/auth"
@@ -75,6 +75,12 @@ export function Sidebar({ empresa, user }: SidebarProps) {
         icon: Truck,
         href: `/${empresa.slug}/dashboard/fornecedores`,
         active: pathname.includes("/dashboard/fornecedores"),
+      },
+      {
+        title: "Chat",
+        icon: MessageCircle,
+        href: `/${empresa.slug}/dashboard/chat`,
+        active: pathname.includes("/dashboard/chat"),
       },
     ],
     [empresa.slug, pathname],

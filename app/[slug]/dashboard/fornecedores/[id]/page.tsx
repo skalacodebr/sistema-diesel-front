@@ -214,6 +214,107 @@ export default function FornecedorViewPage({ params }: FornecedorViewPageProps) 
           </CardContent>
         </Card>
 
+        {/* Contatos */}
+        {fornecedor.contatos && fornecedor.contatos.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Contatos</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {fornecedor.contatos.map((contato, index) => (
+                <div key={contato.id || index} className="border-b pb-2 last:border-b-0">
+                  <div><strong>Tipo:</strong> {contato.tipoContato?.nome || "Não informado"}</div>
+                  {contato.email && <div><strong>Email:</strong> {contato.email}</div>}
+                  {contato.telefone && <div><strong>Telefone:</strong> {contato.telefone}</div>}
+                  {contato.celular && <div><strong>Celular:</strong> {contato.celular}</div>}
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Endereços */}
+        {fornecedor.enderecos && fornecedor.enderecos.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Endereços</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {fornecedor.enderecos.map((endereco, index) => (
+                <div key={endereco.id || index} className="border-b pb-2 last:border-b-0">
+                  <div><strong>Tipo:</strong> {endereco.tipoEndereco?.nome || "Não informado"}</div>
+                  {endereco.cep && <div><strong>CEP:</strong> {endereco.cep}</div>}
+                  {endereco.rua && <div><strong>Rua:</strong> {endereco.rua}, {endereco.numero || "S/N"}</div>}
+                  {endereco.bairro && <div><strong>Bairro:</strong> {endereco.bairro}</div>}
+                  {endereco.cidade && <div><strong>Cidade:</strong> {endereco.cidade} - {endereco.estado}</div>}
+                  {endereco.complemento && <div><strong>Complemento:</strong> {endereco.complemento}</div>}
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Representantes */}
+        {fornecedor.representantes && fornecedor.representantes.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Representantes</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {fornecedor.representantes.map((representante, index) => (
+                <div key={representante.id || index} className="border-b pb-2 last:border-b-0">
+                  <div><strong>Tipo:</strong> {representante.tipoRepresentante?.nome || "Não informado"}</div>
+                  {representante.nome && <div><strong>Nome:</strong> {representante.nome}</div>}
+                  {representante.documento && <div><strong>Documento:</strong> {representante.documento}</div>}
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Dados Bancários */}
+        {fornecedor.dadosBancarios && fornecedor.dadosBancarios.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Dados Bancários</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {fornecedor.dadosBancarios.map((dados, index) => (
+                <div key={dados.id || index} className="border-b pb-2 last:border-b-0">
+                  <div><strong>Tipo de Conta:</strong> {dados.tipoContaBancaria?.nome || "Não informado"}</div>
+                  {dados.banco && <div><strong>Banco:</strong> {dados.banco}</div>}
+                  {dados.agencia && <div><strong>Agência:</strong> {dados.agencia}</div>}
+                  {dados.numero_conta && <div><strong>Conta:</strong> {dados.numero_conta}</div>}
+                  {dados.chave_pix && <div><strong>Chave PIX:</strong> {dados.chave_pix}</div>}
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Tributação */}
+        {fornecedor.tributacao && fornecedor.tributacao.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Informações de Tributação</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {fornecedor.tributacao.map((trib, index) => (
+                <div key={trib.id || index} className="border-b pb-2 last:border-b-0">
+                  {trib.iva && <div><strong>IVA:</strong> {trib.iva}</div>}
+                  <div><strong>CSOSN:</strong> {trib.csosn?.nome || "Não informado"}</div>
+                  {trib.carga_tributaria_percentual && (
+                    <div><strong>Carga Tributária:</strong> {trib.carga_tributaria_percentual}%</div>
+                  )}
+                  {trib.fornecedor_desde && (
+                    <div><strong>Fornecedor desde:</strong> {format(new Date(trib.fornecedor_desde), "dd/MM/yyyy", { locale: ptBR })}</div>
+                  )}
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        )}
+
         <Card>
           <CardHeader>
             <CardTitle>Informações do Sistema</CardTitle>
