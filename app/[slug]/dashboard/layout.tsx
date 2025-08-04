@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, use } from "react"
 import { useRouter } from "next/navigation"
 import { getToken, isAuthenticated, getUser } from "@/lib/auth"
 import { getEmpresaBySlug } from "@/lib/api"
@@ -15,8 +15,9 @@ export default function DashboardLayout({
   params,
 }: {
   children: React.ReactNode
-  params: { slug: string }
+  params: Promise<{ slug: string }>
 }) {
+  const { slug } = use(params)
   const router = useRouter()
   const [empresa, setEmpresa] = useState<EmpresaMae | null>(null)
   const [user, setUser] = useState<any>(null)
@@ -30,31 +31,31 @@ export default function DashboardLayout({
 
       if (!isAuthenticated()) {
         console.log("User not authenticated, redirecting to login")
-        router.push(`/${params.slug}/login`)
+        router.push(`/${slug}/login`)
         return
       }
 
       setUser(getUser())
 
       try {
-        const empresaData = await getEmpresaBySlug(params.slug)
+        const empresaData = await getEmpresaBySlug(slug)
         if (empresaData) {
           console.log("Company data fetched successfully")
           setEmpresa(empresaData)
         } else {
-          console.error("No company data found for slug:", params.slug)
-          router.push(`/${params.slug}/login`)
+          console.error("No company data found for slug:", slug)
+          router.push(`/${slug}/login`)
         }
       } catch (error) {
         console.error("Failed to fetch company data:", error)
-        router.push(`/${params.slug}/login`)
+        router.push(`/${slug}/login`)
       } finally {
         setLoading(false)
       }
     }
 
     checkAuth()
-  }, [params.slug, router])
+  }, [slug, router])
 
   if (loading) {
     return (

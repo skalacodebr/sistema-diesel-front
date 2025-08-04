@@ -224,13 +224,22 @@ export default function OrdemServicoViewPage({ params }: OrdemServicoViewPagePro
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <strong>Valor Total dos Serviços:</strong> {ordemServico.valor_total_servicos ? `R$ ${ordemServico.valor_total_servicos.toFixed(2)}` : "Não informado"}
+              <strong>Valor Total dos Serviços:</strong> {(() => {
+                const valor = typeof ordemServico.valor_total_servicos === 'string' ? parseFloat(ordemServico.valor_total_servicos) : ordemServico.valor_total_servicos
+                return valor && !isNaN(valor) ? `R$ ${valor.toFixed(2)}` : "Não informado"
+              })()}
             </div>
             <div>
-              <strong>Valor Total dos Produtos:</strong> {ordemServico.valor_total_produtos ? `R$ ${ordemServico.valor_total_produtos.toFixed(2)}` : "Não informado"}
+              <strong>Valor Total dos Produtos:</strong> {(() => {
+                const valor = typeof ordemServico.valor_total_produtos === 'string' ? parseFloat(ordemServico.valor_total_produtos) : ordemServico.valor_total_produtos
+                return valor && !isNaN(valor) ? `R$ ${valor.toFixed(2)}` : "Não informado"
+              })()}
             </div>
             <div>
-              <strong>Valor Total:</strong> {ordemServico.valor_total ? `R$ ${ordemServico.valor_total.toFixed(2)}` : "Não informado"}
+              <strong>Valor Total:</strong> {(() => {
+                const valor = typeof ordemServico.valor_total === 'string' ? parseFloat(ordemServico.valor_total) : ordemServico.valor_total
+                return valor && !isNaN(valor) ? `R$ ${valor.toFixed(2)}` : "Não informado"
+              })()}
             </div>
           </CardContent>
         </Card>
@@ -255,8 +264,14 @@ export default function OrdemServicoViewPage({ params }: OrdemServicoViewPagePro
                 <div key={servicoOrdem.id || index} className="border-b pb-2 last:border-b-0">
                   <div><strong>Serviço:</strong> {servicoOrdem.servico?.nome || "Não informado"}</div>
                   <div><strong>Quantidade:</strong> {servicoOrdem.quantidade}</div>
-                  <div><strong>Valor Unitário:</strong> R$ {servicoOrdem.valor_unitario.toFixed(2)}</div>
-                  {servicoOrdem.valor_desconto && <div><strong>Desconto:</strong> R$ {servicoOrdem.valor_desconto.toFixed(2)}</div>}
+                  <div><strong>Valor Unitário:</strong> {(() => {
+                    const valor = typeof servicoOrdem.valor_unitario === 'string' ? parseFloat(servicoOrdem.valor_unitario) : servicoOrdem.valor_unitario
+                    return valor && !isNaN(valor) ? `R$ ${valor.toFixed(2)}` : "R$ 0,00"
+                  })()}</div>
+                  {servicoOrdem.valor_desconto && (() => {
+                    const valor = typeof servicoOrdem.valor_desconto === 'string' ? parseFloat(servicoOrdem.valor_desconto) : servicoOrdem.valor_desconto
+                    return valor && !isNaN(valor) ? <div><strong>Desconto:</strong> R$ {valor.toFixed(2)}</div> : null
+                  })()}
                 </div>
               ))}
             </CardContent>
@@ -274,7 +289,10 @@ export default function OrdemServicoViewPage({ params }: OrdemServicoViewPagePro
                 <div key={produtoOrdem.id || index} className="border-b pb-2 last:border-b-0">
                   <div><strong>Produto:</strong> {produtoOrdem.produto?.descricao || "Não informado"}</div>
                   <div><strong>Quantidade:</strong> {produtoOrdem.quantidade}</div>
-                  <div><strong>Valor Unitário:</strong> R$ {produtoOrdem.valor_unitario.toFixed(2)}</div>
+                  <div><strong>Valor Unitário:</strong> {(() => {
+                    const valor = typeof produtoOrdem.valor_unitario === 'string' ? parseFloat(produtoOrdem.valor_unitario) : produtoOrdem.valor_unitario
+                    return valor && !isNaN(valor) ? `R$ ${valor.toFixed(2)}` : "R$ 0,00"
+                  })()}</div>
                 </div>
               ))}
             </CardContent>
@@ -307,7 +325,10 @@ export default function OrdemServicoViewPage({ params }: OrdemServicoViewPagePro
               {ordemServico.formasPagamento.map((formaPagamentoOrdem, index) => (
                 <div key={formaPagamentoOrdem.id || index} className="border-b pb-2 last:border-b-0">
                   <div><strong>Forma:</strong> {formaPagamentoOrdem.formaPagamento?.nome || "Não informado"}</div>
-                  <div><strong>Valor:</strong> R$ {formaPagamentoOrdem.valor.toFixed(2)}</div>
+                  <div><strong>Valor:</strong> {(() => {
+                    const valor = typeof formaPagamentoOrdem.valor === 'string' ? parseFloat(formaPagamentoOrdem.valor) : formaPagamentoOrdem.valor
+                    return valor && !isNaN(valor) ? `R$ ${valor.toFixed(2)}` : "R$ 0,00"
+                  })()}</div>
                 </div>
               ))}
             </CardContent>

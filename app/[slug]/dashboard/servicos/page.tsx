@@ -106,7 +106,9 @@ export default function ServicosPage({ params }: ServicosPageProps) {
       }
 
       const data = await getServicos(token)
-      setServicos(data)
+      // Handle paginated API response
+      const servicosArray = data.data || data
+      setServicos(Array.isArray(servicosArray) ? servicosArray : [])
     } catch (error) {
       console.error("Erro ao buscar serviços:", error)
       toast({
@@ -161,11 +163,13 @@ export default function ServicosPage({ params }: ServicosPageProps) {
       case "codigo_servico":
         return servico.codigo_servico || "-"
       case "valor_unitario":
-        return servico.valor_unitario ? `R$ ${servico.valor_unitario.toFixed(2)}` : "-"
+        const valorUnitario = typeof servico.valor_unitario === 'string' ? parseFloat(servico.valor_unitario) : servico.valor_unitario
+        return valorUnitario && !isNaN(valorUnitario) ? `R$ ${valorUnitario.toFixed(2)}` : "-"
       case "tempo_servico_minutos":
         return servico.tempo_servico_minutos || "-"
       case "percentual_comissao":
-        return servico.percentual_comissao ? `${servico.percentual_comissao}%` : "-"
+        const percentualComissao = typeof servico.percentual_comissao === 'string' ? parseFloat(servico.percentual_comissao) : servico.percentual_comissao
+        return percentualComissao && !isNaN(percentualComissao) ? `${percentualComissao}%` : "-"
       case "categoriaServico.nome":
         return servico.categoriaServico?.nome || "-"
       case "actions":

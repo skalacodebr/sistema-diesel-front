@@ -136,10 +136,16 @@ export default function ServicoViewPage({ params }: ServicoViewPageProps) {
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <strong>Valor Unitário:</strong> {servico.valor_unitario ? `R$ ${servico.valor_unitario.toFixed(2)}` : "Não informado"}
+              <strong>Valor Unitário:</strong> {(() => {
+                const valor = typeof servico.valor_unitario === 'string' ? parseFloat(servico.valor_unitario) : servico.valor_unitario
+                return valor && !isNaN(valor) ? `R$ ${valor.toFixed(2)}` : "Não informado"
+              })()}
             </div>
             <div>
-              <strong>Percentual de Comissão:</strong> {servico.percentual_comissao ? `${servico.percentual_comissao}%` : "Não informado"}
+              <strong>Percentual de Comissão:</strong> {(() => {
+                const percentual = typeof servico.percentual_comissao === 'string' ? parseFloat(servico.percentual_comissao) : servico.percentual_comissao
+                return percentual && !isNaN(percentual) ? `${percentual}%` : "Não informado"
+              })()}
             </div>
             <div>
               <strong>Tempo do Serviço:</strong> {servico.tempo_servico_minutos ? `${servico.tempo_servico_minutos} min` : "Não informado"}
@@ -151,10 +157,16 @@ export default function ServicoViewPage({ params }: ServicoViewPageProps) {
               <strong>Tempo de Tolerância:</strong> {servico.tempo_tolerancia ? `${servico.tempo_tolerancia} min` : "Não informado"}
             </div>
             <div>
-              <strong>Valor Adicional:</strong> {servico.valor_adicional ? `R$ ${servico.valor_adicional.toFixed(2)}` : "Não informado"}
+              <strong>Valor Adicional:</strong> {(() => {
+                const valor = typeof servico.valor_adicional === 'string' ? parseFloat(servico.valor_adicional) : servico.valor_adicional
+                return valor && !isNaN(valor) ? `R$ ${valor.toFixed(2)}` : "Não informado"
+              })()}
             </div>
             <div>
-              <strong>Limite Máximo de Desconto:</strong> {servico.limite_maximo_desconto ? `${servico.limite_maximo_desconto}%` : "Não informado"}
+              <strong>Limite Máximo de Desconto:</strong> {(() => {
+                const limite = typeof servico.limite_maximo_desconto === 'string' ? parseFloat(servico.limite_maximo_desconto) : servico.limite_maximo_desconto
+                return limite && !isNaN(limite) ? `${limite}%` : "Não informado"
+              })()}
             </div>
           </CardContent>
         </Card>
@@ -165,16 +177,28 @@ export default function ServicoViewPage({ params }: ServicoViewPageProps) {
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <strong>ISS:</strong> {servico.percentual_iss ? `${servico.percentual_iss}%` : "Não informado"}
+              <strong>ISS:</strong> {(() => {
+                const iss = typeof servico.percentual_iss === 'string' ? parseFloat(servico.percentual_iss) : servico.percentual_iss
+                return iss && !isNaN(iss) ? `${iss}%` : "Não informado"
+              })()}
             </div>
             <div>
-              <strong>PIS:</strong> {servico.percentual_pis ? `${servico.percentual_pis}%` : "Não informado"}
+              <strong>PIS:</strong> {(() => {
+                const pis = typeof servico.percentual_pis === 'string' ? parseFloat(servico.percentual_pis) : servico.percentual_pis
+                return pis && !isNaN(pis) ? `${pis}%` : "Não informado"
+              })()}
             </div>
             <div>
-              <strong>COFINS:</strong> {servico.percentual_cofins ? `${servico.percentual_cofins}%` : "Não informado"}
+              <strong>COFINS:</strong> {(() => {
+                const cofins = typeof servico.percentual_cofins === 'string' ? parseFloat(servico.percentual_cofins) : servico.percentual_cofins
+                return cofins && !isNaN(cofins) ? `${cofins}%` : "Não informado"
+              })()}
             </div>
             <div>
-              <strong>INSS:</strong> {servico.percentual_inss ? `${servico.percentual_inss}%` : "Não informado"}
+              <strong>INSS:</strong> {(() => {
+                const inss = typeof servico.percentual_inss === 'string' ? parseFloat(servico.percentual_inss) : servico.percentual_inss
+                return inss && !isNaN(inss) ? `${inss}%` : "Não informado"
+              })()}
             </div>
           </CardContent>
         </Card>

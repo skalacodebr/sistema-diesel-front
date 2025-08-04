@@ -166,7 +166,8 @@ export default function OrdensServicoPage({ params }: OrdensServicoPageProps) {
       case "data_emissao":
         return ordem.data_emissao ? new Date(ordem.data_emissao).toLocaleDateString("pt-BR") : "-"
       case "valor_total":
-        return ordem.valor_total ? `R$ ${ordem.valor_total.toFixed(2)}` : "-"
+        const valorTotal = typeof ordem.valor_total === 'string' ? parseFloat(ordem.valor_total) : ordem.valor_total
+        return valorTotal && !isNaN(valorTotal) ? `R$ ${valorTotal.toFixed(2)}` : "-"
       case "statusOrdemServico.nome":
         return ordem.statusOrdemServico?.nome || "-"
       case "actions":
