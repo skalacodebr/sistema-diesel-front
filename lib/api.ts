@@ -2284,3 +2284,405 @@ export async function getFuncionarios(token: string): Promise<any[]> {
     throw error
   }
 }
+
+// Kanban API
+export async function getKanbanData(token: string): Promise<any> {
+  try {
+    const response = await fetch(getApiUrl("kanban"), {
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(`Falha ao buscar dados do kanban: ${response.status}`)
+    }
+
+    return response.json()
+  } catch (error) {
+    console.error("Failed to fetch kanban data:", error)
+    throw error
+  }
+}
+
+export async function getKanbanColunas(token: string): Promise<any[]> {
+  try {
+    const response = await fetch(getApiUrl("kanban/colunas"), {
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(`Falha ao buscar colunas do kanban: ${response.status}`)
+    }
+
+    const data = await response.json()
+    return Array.isArray(data) ? data : data.data || []
+  } catch (error) {
+    console.error("Failed to fetch kanban columns:", error)
+    throw error
+  }
+}
+
+export async function createKanbanColuna(coluna: any, token: string): Promise<any> {
+  try {
+    const response = await fetch(getApiUrl("kanban/colunas"), {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(coluna),
+    })
+
+    if (!response.ok) {
+      let errorMessage = `Falha ao criar coluna: ${response.status}`
+      try {
+        const errorData = await response.json()
+        errorMessage = errorData.message || errorMessage
+      } catch (e) {
+        // Uses default message
+      }
+      throw new Error(errorMessage)
+    }
+
+    return response.json()
+  } catch (error) {
+    console.error("Failed to create kanban column:", error)
+    throw error
+  }
+}
+
+export async function createKanbanCard(card: any, token: string): Promise<any> {
+  try {
+    const response = await fetch(getApiUrl("kanban/cards"), {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(card),
+    })
+
+    if (!response.ok) {
+      let errorMessage = `Falha ao criar card: ${response.status}`
+      try {
+        const errorData = await response.json()
+        errorMessage = errorData.message || errorMessage
+      } catch (e) {
+        // Uses default message
+      }
+      throw new Error(errorMessage)
+    }
+
+    return response.json()
+  } catch (error) {
+    console.error("Failed to create kanban card:", error)
+    throw error
+  }
+}
+
+export async function moveKanbanCard(moveData: any, token: string): Promise<any> {
+  try {
+    const response = await fetch(getApiUrl("kanban/cards/mover"), {
+      method: "PUT",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(moveData),
+    })
+
+    if (!response.ok) {
+      let errorMessage = `Falha ao mover card: ${response.status}`
+      try {
+        const errorData = await response.json()
+        errorMessage = errorData.message || errorMessage
+      } catch (e) {
+        // Uses default message
+      }
+      throw new Error(errorMessage)
+    }
+
+    return response.json()
+  } catch (error) {
+    console.error("Failed to move kanban card:", error)
+    throw error
+  }
+}
+
+export async function deleteKanbanCard(cardId: number, token: string): Promise<void> {
+  try {
+    const response = await fetch(getApiUrl(`kanban/cards/${cardId}`), {
+      method: "DELETE",
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    if (!response.ok) {
+      let errorMessage = `Falha ao excluir card: ${response.status}`
+      try {
+        const errorData = await response.json()
+        errorMessage = errorData.message || errorMessage
+      } catch (e) {
+        // Uses default message
+      }
+      throw new Error(errorMessage)
+    }
+  } catch (error) {
+    console.error(`Failed to delete kanban card ${cardId}:`, error)
+    throw error
+  }
+}
+
+// Checklist API
+export async function getChecklistTemplates(token: string): Promise<any[]> {
+  try {
+    const response = await fetch(getApiUrl("checklist/templates"), {
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(`Falha ao buscar templates de checklist: ${response.status}`)
+    }
+
+    const data = await response.json()
+    return Array.isArray(data) ? data : data.data || []
+  } catch (error) {
+    console.error("Failed to fetch checklist templates:", error)
+    throw error
+  }
+}
+
+export async function createChecklistTemplate(template: any, token: string): Promise<any> {
+  try {
+    const response = await fetch(getApiUrl("checklist/templates"), {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(template),
+    })
+
+    if (!response.ok) {
+      let errorMessage = `Falha ao criar template: ${response.status}`
+      try {
+        const errorData = await response.json()
+        errorMessage = errorData.message || errorMessage
+      } catch (e) {
+        // Uses default message
+      }
+      throw new Error(errorMessage)
+    }
+
+    return response.json()
+  } catch (error) {
+    console.error("Failed to create checklist template:", error)
+    throw error
+  }
+}
+
+export async function getChecklists(token: string): Promise<any[]> {
+  try {
+    const response = await fetch(getApiUrl("checklist"), {
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(`Falha ao buscar checklists: ${response.status}`)
+    }
+
+    const data = await response.json()
+    return Array.isArray(data) ? data : data.data || []
+  } catch (error) {
+    console.error("Failed to fetch checklists:", error)
+    throw error
+  }
+}
+
+export async function startChecklist(checklistData: any, token: string): Promise<any> {
+  try {
+    const response = await fetch(getApiUrl("checklist/iniciar"), {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(checklistData),
+    })
+
+    if (!response.ok) {
+      let errorMessage = `Falha ao iniciar checklist: ${response.status}`
+      try {
+        const errorData = await response.json()
+        errorMessage = errorData.message || errorMessage
+      } catch (e) {
+        // Uses default message
+      }
+      throw new Error(errorMessage)
+    }
+
+    return response.json()
+  } catch (error) {
+    console.error("Failed to start checklist:", error)
+    throw error
+  }
+}
+
+export async function getChecklist(id: number, token: string): Promise<any> {
+  try {
+    const response = await fetch(getApiUrl(`checklist/${id}`), {
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(`Falha ao buscar checklist: ${response.status}`)
+    }
+
+    return response.json()
+  } catch (error) {
+    console.error(`Failed to fetch checklist ${id}:`, error)
+    throw error
+  }
+}
+
+export async function finalizeChecklist(id: number, token: string): Promise<any> {
+  try {
+    const response = await fetch(getApiUrl(`checklist/${id}/finalizar`), {
+      method: "PUT",
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    if (!response.ok) {
+      let errorMessage = `Falha ao finalizar checklist: ${response.status}`
+      try {
+        const errorData = await response.json()
+        errorMessage = errorData.message || errorMessage
+      } catch (e) {
+        // Uses default message
+      }
+      throw new Error(errorMessage)
+    }
+
+    return response.json()
+  } catch (error) {
+    console.error(`Failed to finalize checklist ${id}:`, error)
+    throw error
+  }
+}
+
+export async function saveChecklistResponse(responseData: any, token: string): Promise<any> {
+  try {
+    const response = await fetch(getApiUrl("checklist/resposta"), {
+      method: "PUT",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(responseData),
+    })
+
+    if (!response.ok) {
+      let errorMessage = `Falha ao salvar resposta: ${response.status}`
+      try {
+        const errorData = await response.json()
+        errorMessage = errorData.message || errorMessage
+      } catch (e) {
+        // Uses default message
+      }
+      throw new Error(errorMessage)
+    }
+
+    return response.json()
+  } catch (error) {
+    console.error("Failed to save checklist response:", error)
+    throw error
+  }
+}
+
+// FECHAMENTO DE ORDEM DE SERVIÇO
+
+export async function verificarPodeFacharOrdem(id: number, token: string): Promise<any> {
+  try {
+    const response = await fetch(getApiUrl(`ordens-servico/${id}/pode-fechar`), {
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    if (!response.ok) {
+      let errorMessage = `Falha ao verificar se pode fechar ordem: ${response.status}`
+      try {
+        const errorData = await response.json()
+        errorMessage = errorData.message || errorMessage
+      } catch (e) {
+        // Uses default message
+      }
+      throw new Error(errorMessage)
+    }
+
+    return response.json()
+  } catch (error) {
+    console.error("Failed to check if ordem can be closed:", error)
+    throw error
+  }
+}
+
+export async function fecharOrdemServico(id: number, dadosFechamento: any, token: string): Promise<any> {
+  try {
+    const response = await fetch(getApiUrl(`ordens-servico/${id}/fechar`), {
+      method: "PUT",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(dadosFechamento),
+    })
+
+    if (!response.ok) {
+      let errorMessage = `Falha ao fechar ordem de serviço: ${response.status}`
+      try {
+        const errorData = await response.json()
+        if (errorData.error) {
+          errorMessage = errorData.error
+        } else {
+          errorMessage = errorData.message || errorMessage
+        }
+      } catch (e) {
+        // Uses default message
+      }
+      throw new Error(errorMessage)
+    }
+
+    return response.json()
+  } catch (error) {
+    console.error("Failed to close ordem de servico:", error)
+    throw error
+  }
+}

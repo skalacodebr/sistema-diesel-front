@@ -563,3 +563,108 @@ export interface AprovacaoDescontoOrdemServicoProduto {
   // Relacionamentos
   ordemServicoProduto?: OrdemServicoProduto
 }
+
+// Kanban Types
+export interface KanbanCard {
+  id?: number
+  titulo: string
+  descricao?: string
+  coluna_id: number
+  ordem?: number
+  cor?: string
+  data_vencimento?: string
+  created_at?: string
+  updated_at?: string
+  // Relacionamentos
+  coluna?: KanbanColuna
+}
+
+export interface KanbanColuna {
+  id?: number
+  nome: string
+  ordem?: number
+  cor?: string
+  limite_cards?: number
+  created_at?: string
+  updated_at?: string
+  // Relacionamentos
+  cards?: KanbanCard[]
+}
+
+export interface KanbanData {
+  colunas: KanbanColuna[]
+  cards: KanbanCard[]
+}
+
+export interface MoveCardData {
+  card_id: number
+  coluna_destino_id: number
+  nova_ordem?: number
+}
+
+// Checklist Types
+export interface ChecklistTemplate {
+  id?: number
+  nome: string
+  descricao?: string
+  itens: ChecklistTemplateItem[]
+  created_at?: string
+  updated_at?: string
+}
+
+export interface ChecklistTemplateItem {
+  id?: number
+  template_id?: number
+  pergunta: string
+  tipo_resposta: 'sim_nao' | 'texto' | 'numerico' | 'multipla_escolha'
+  obrigatoria: boolean
+  opcoes?: string[] // Para múltipla escolha
+  ordem?: number
+  created_at?: string
+  updated_at?: string
+}
+
+export interface Checklist {
+  id?: number
+  template_id: number
+  veiculo_id?: number
+  funcionario_id?: number
+  status: 'iniciado' | 'em_andamento' | 'finalizado'
+  data_inicio?: string
+  data_finalizacao?: string
+  observacoes?: string
+  created_at?: string
+  updated_at?: string
+  // Relacionamentos
+  template?: ChecklistTemplate
+  veiculo?: Veiculo
+  funcionario?: any
+  respostas?: ChecklistResposta[]
+}
+
+export interface ChecklistResposta {
+  id?: number
+  checklist_id: number
+  item_id: number
+  resposta: string | boolean | number
+  observacao?: string
+  created_at?: string
+  updated_at?: string
+  // Relacionamentos
+  checklist?: Checklist
+  item?: ChecklistTemplateItem
+}
+
+export interface ChecklistStats {
+  total: number
+  iniciados: number
+  em_andamento: number
+  finalizados: number
+}
+
+export interface StartChecklistData {
+  template_id: number
+  veiculo_id?: number
+  funcionario_id?: number
+  observacoes?: string
+}

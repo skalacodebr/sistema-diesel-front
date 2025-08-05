@@ -51,10 +51,11 @@ export default function OrdensServicoPage({ params }: OrdensServicoPageProps) {
     { key: "id", label: "ID", type: "number", sortable: true, width: "80px" },
     { key: "nome", label: "Nome", type: "text", sortable: true },
     { key: "cliente.razao_social", label: "Cliente", type: "text", sortable: false },
-    { key: "status", label: "Status", type: "text", sortable: true },
     { key: "data_emissao", label: "Data Emissão", type: "date", sortable: true },
-    { key: "valor_total", label: "Valor Total", type: "currency", sortable: true },
-    { key: "statusOrdemServico.nome", label: "Status Ordem", type: "text", sortable: false },
+    { key: "valor_total_servicos", label: "Serviços", type: "currency", sortable: true },
+    { key: "valor_total_produtos", label: "Produtos", type: "currency", sortable: true },
+    { key: "valor_total", label: "Total", type: "currency", sortable: true },
+    { key: "statusOrdemServico.nome", label: "Status", type: "text", sortable: false },
     { key: "actions", label: "Ações", type: "actions", sortable: false, width: "120px" },
   ]
 
@@ -160,14 +161,18 @@ export default function OrdensServicoPage({ params }: OrdensServicoPageProps) {
       case "nome":
         return ordem.nome || "-"
       case "cliente.razao_social":
-        return ordem.cliente?.razao_social || "-"
-      case "status":
-        return ordem.status || "-"
+        return ordem.cliente?.razao_social || ordem.cliente?.nome_fantasia || "-"
       case "data_emissao":
         return ordem.data_emissao ? new Date(ordem.data_emissao).toLocaleDateString("pt-BR") : "-"
+      case "valor_total_servicos":
+        const valorServicos = typeof ordem.valor_total_servicos === 'string' ? parseFloat(ordem.valor_total_servicos) : ordem.valor_total_servicos
+        return valorServicos && !isNaN(valorServicos) ? `R$ ${valorServicos.toFixed(2)}` : "R$ 0,00"
+      case "valor_total_produtos":
+        const valorProdutos = typeof ordem.valor_total_produtos === 'string' ? parseFloat(ordem.valor_total_produtos) : ordem.valor_total_produtos
+        return valorProdutos && !isNaN(valorProdutos) ? `R$ ${valorProdutos.toFixed(2)}` : "R$ 0,00"
       case "valor_total":
         const valorTotal = typeof ordem.valor_total === 'string' ? parseFloat(ordem.valor_total) : ordem.valor_total
-        return valorTotal && !isNaN(valorTotal) ? `R$ ${valorTotal.toFixed(2)}` : "-"
+        return valorTotal && !isNaN(valorTotal) ? `R$ ${valorTotal.toFixed(2)}` : "R$ 0,00"
       case "statusOrdemServico.nome":
         return ordem.statusOrdemServico?.nome || "-"
       case "actions":

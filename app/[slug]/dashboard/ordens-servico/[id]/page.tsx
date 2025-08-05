@@ -3,12 +3,35 @@
 import { useEffect, useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { getToken, isAuthenticated } from "@/lib/auth"
-import { getOrdemServico, getEmpresaMae } from "@/lib/api"
+import { getOrdemServico, getEmpresaMae, verificarPodeFacharOrdem, fecharOrdemServico } from "@/lib/api"
 import type { OrdemServico, EmpresaMae } from "@/lib/types"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { useToast } from "@/hooks/use-toast"
-import { ArrowLeft, Edit, ClipboardList, FileDown } from "lucide-react"
+import { ArrowLeft, Edit, ClipboardList, FileDown, CheckCircle2, XCircle, AlertTriangle, Lock } from "lucide-react"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { OrdemServicoPDF } from "@/components/ordens-servico/ordem-servico-pdf"
@@ -31,6 +54,16 @@ export default function OrdemServicoViewPage({ params }: OrdemServicoViewPagePro
   const [generatingPDF, setGeneratingPDF] = useState(false)
   const pdfRef = useRef<HTMLDivElement>(null)
   const ordemServicoId = Number(params.id)
+  
+  // Estados para fechamento
+  const [podeFechar, setPodeFechar] = useState<any>(null)
+  const [closeDialogOpen, setCloseDialogOpen] = useState(false)
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false)
+  const [closing, setClosing] = useState(false)
+  const [closeData, setCloseData] = useState({
+    status_final: '',
+    observacoes_fechamento: ''
+  })
 
   useEffect(() => {
     const checkAuthAndFetchData = async () => {
@@ -54,12 +87,14 @@ export default function OrdemServicoViewPage({ params }: OrdemServicoViewPagePro
       }
 
       // Fetch both ordem servico and empresa data
-      const [ordemServicoData, empresaData] = await Promise.all([
+      const [ordemServicoData, empresaData, podeFecharData] = await Promise.all([
         getOrdemServico(ordemServicoId, token),
-        getEmpresaMae(token)
+        getEmpresaMae(token),
+        verificarPodeFacharOrdem(ordemServicoId, token).catch(() => null)
       ])
       
       setOrdemServico(ordemServicoData)
+      setPodeFechar(podeFecharData)
       
       // Extract the empresa from the response
       const empresaArray = empresaData.result?.data || empresaData.data || empresaData
@@ -131,6 +166,62 @@ export default function OrdemServicoViewPage({ params }: OrdemServicoViewPagePro
     }
   }
 
+  const handleOpenCloseDialog = () => {
+    setCloseData({ status_final: '', observacoes_fechamento: '' })
+    setCloseDialogOpen(true)
+  }
+
+  const handleCloseOrder = async () => {
+    if (!closeData.status_final || !ordemServico?.id) {
+      toast({
+        variant: "destructive",
+        title: "Erro de validação",
+        description: "Selecione um status final para fechar a ordem.",
+      })
+      return
+    }
+
+    setConfirmDialogOpen(true)
+  }
+
+  const confirmCloseOrder = async () => {
+    if (!ordemServico?.id) return
+
+    setClosing(true)
+    try {
+      const token = getToken()
+      if (!token) {
+        throw new Error("Token não encontrado")
+      }
+
+      await fecharOrdemServico(ordemServico.id, closeData, token)
+      
+      toast({
+        title: "Ordem de serviço fechada com sucesso!",
+        description: `A ordem foi marcada como ${closeData.status_final.toLowerCase()}.`,
+      })
+
+      // Recarregar dados
+      await fetchData()
+      setCloseDialogOpen(false)
+      setConfirmDialogOpen(false)
+    } catch (error) {
+      console.error("Erro ao fechar ordem:", error)
+      toast({
+        variant: "destructive",
+        title: "Erro ao fechar ordem de serviço",
+        description: error instanceof Error ? error.message : "Ocorreu um erro desconhecido",
+      })
+    } finally {
+      setClosing(false)
+    }
+  }
+
+  const isOrderClosed = () => {
+    const status = ordemServico?.statusOrdemServico?.nome
+    return status && ['Concluída', 'Cancelada', 'Finalizada'].includes(status)
+  }
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -173,6 +264,23 @@ export default function OrdemServicoViewPage({ params }: OrdemServicoViewPagePro
           <h1 className="text-2xl font-bold">Detalhes da Ordem de Serviço</h1>
         </div>
         <div className="flex gap-2">
+          {!isOrderClosed() && (
+            <Button 
+              onClick={handleOpenCloseDialog}
+              disabled={!podeFechar?.pode_fechar}
+              variant={podeFechar?.pode_fechar ? "default" : "outline"}
+              className={podeFechar?.pode_fechar ? "bg-green-600 hover:bg-green-700" : ""}
+            >
+              <CheckCircle2 className="mr-2 h-4 w-4" />
+              Fechar Ordem
+            </Button>
+          )}
+          {isOrderClosed() && (
+            <Badge variant="secondary" className="text-sm px-3 py-2">
+              <Lock className="mr-2 h-4 w-4" />
+              Ordem {ordemServico?.statusOrdemServico?.nome}
+            </Badge>
+          )}
           <Button onClick={() => router.push(`/${params.slug}/dashboard/ordens-servico/${ordemServico.id}/editar`)}>
             <Edit className="mr-2 h-4 w-4" />
             Editar
@@ -253,6 +361,77 @@ export default function OrdemServicoViewPage({ params }: OrdemServicoViewPagePro
           </CardContent>
         </Card>
 
+        {/* Status de Fechamento */}
+        {podeFechar && (
+          <Card className="md:col-span-2">
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                {isOrderClosed() ? (
+                  <>
+                    <Lock className="mr-2 h-5 w-5" />
+                    Ordem Fechada
+                  </>
+                ) : podeFechar.pode_fechar ? (
+                  <>
+                    <CheckCircle2 className="mr-2 h-5 w-5 text-green-600" />
+                    Pronta para Fechamento
+                  </>
+                ) : (
+                  <>
+                    <AlertTriangle className="mr-2 h-5 w-5 text-orange-600" />
+                    Impedimentos para Fechamento
+                  </>
+                )}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {isOrderClosed() ? (
+                <div className="flex items-center text-green-600">
+                  <CheckCircle2 className="mr-2 h-4 w-4" />
+                  <span>Ordem {ordemServico?.statusOrdemServico?.nome?.toLowerCase()} com sucesso</span>
+                </div>
+              ) : podeFechar.pode_fechar ? (
+                <div className="space-y-2">
+                  <div className="flex items-center text-green-600">
+                    <CheckCircle2 className="mr-2 h-4 w-4" />
+                    <span>Todos os requisitos foram atendidos. A ordem pode ser fechada.</span>
+                  </div>
+                  {podeFechar.tem_checklist && (
+                    <div className="text-sm text-gray-600">
+                      ✓ Checklist obrigatório finalizado
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <div className="text-orange-600 mb-3">
+                    <AlertTriangle className="inline mr-2 h-4 w-4" />
+                    Existem impedimentos para fechar a ordem:
+                  </div>
+                  <ul className="space-y-1">
+                    {podeFechar.motivos_impedimento?.map((motivo: string, index: number) => (
+                      <li key={index} className="flex items-center text-sm text-red-600">
+                        <XCircle className="mr-2 h-3 w-3" />
+                        {motivo}
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="mt-3 p-3 bg-blue-50 rounded-md">
+                    <div className="text-sm text-blue-800">
+                      <strong>Status atual:</strong> {podeFechar.status_atual || 'Não informado'}
+                    </div>
+                    {podeFechar.tem_checklist && (
+                      <div className="text-sm text-blue-800">
+                        <strong>Checklist finalizado:</strong> {podeFechar.checklist_finalizado ? 'Sim' : 'Não'}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
         {/* Serviços */}
         {ordemServico.servicos && ordemServico.servicos.length > 0 && (
           <Card className="md:col-span-2">
@@ -260,20 +439,44 @@ export default function OrdemServicoViewPage({ params }: OrdemServicoViewPagePro
               <CardTitle>Serviços</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {ordemServico.servicos.map((servicoOrdem, index) => (
-                <div key={servicoOrdem.id || index} className="border-b pb-2 last:border-b-0">
-                  <div><strong>Serviço:</strong> {servicoOrdem.servico?.nome || "Não informado"}</div>
-                  <div><strong>Quantidade:</strong> {servicoOrdem.quantidade}</div>
-                  <div><strong>Valor Unitário:</strong> {(() => {
-                    const valor = typeof servicoOrdem.valor_unitario === 'string' ? parseFloat(servicoOrdem.valor_unitario) : servicoOrdem.valor_unitario
-                    return valor && !isNaN(valor) ? `R$ ${valor.toFixed(2)}` : "R$ 0,00"
-                  })()}</div>
-                  {servicoOrdem.valor_desconto && (() => {
-                    const valor = typeof servicoOrdem.valor_desconto === 'string' ? parseFloat(servicoOrdem.valor_desconto) : servicoOrdem.valor_desconto
-                    return valor && !isNaN(valor) ? <div><strong>Desconto:</strong> R$ {valor.toFixed(2)}</div> : null
-                  })()}
-                </div>
-              ))}
+              {ordemServico.servicos.map((servicoOrdem, index) => {
+                const valorUnitario = typeof servicoOrdem.valor_unitario === 'string' ? parseFloat(servicoOrdem.valor_unitario) : servicoOrdem.valor_unitario
+                const valorDesconto = typeof servicoOrdem.valor_desconto === 'string' ? parseFloat(servicoOrdem.valor_desconto || '0') : (servicoOrdem.valor_desconto || 0)
+                const subtotal = (valorUnitario || 0) * servicoOrdem.quantidade
+                const total = subtotal - (valorDesconto || 0)
+                
+                return (
+                  <div key={servicoOrdem.id || index} className="border-b pb-4 last:border-b-0">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <div><strong>Serviço:</strong> {servicoOrdem.servico?.nome || "Não informado"}</div>
+                        <div><strong>Quantidade:</strong> {servicoOrdem.quantidade}</div>
+                        <div><strong>Valor Unitário:</strong> R$ {(valorUnitario || 0).toFixed(2)}</div>
+                        {valorDesconto > 0 && (
+                          <div className="text-orange-600">
+                            <strong>Desconto:</strong> R$ {valorDesconto.toFixed(2)}
+                            {servicoOrdem.aprovacaoDesconto && (
+                              <span className={`ml-2 px-2 py-1 rounded text-xs ${
+                                servicoOrdem.aprovacaoDesconto.aprovado 
+                                  ? 'bg-green-100 text-green-800' 
+                                  : 'bg-red-100 text-red-800'
+                              }`}>
+                                {servicoOrdem.aprovacaoDesconto.aprovado ? 'Aprovado' : 'Não Aprovado'}
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                      <div className="text-right">
+                        <div><strong>Subtotal:</strong> R$ {subtotal.toFixed(2)}</div>
+                        <div className="text-lg font-semibold">
+                          <strong>Total:</strong> R$ {total.toFixed(2)}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
             </CardContent>
           </Card>
         )}
@@ -285,16 +488,27 @@ export default function OrdemServicoViewPage({ params }: OrdemServicoViewPagePro
               <CardTitle>Produtos</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {ordemServico.produtos.map((produtoOrdem, index) => (
-                <div key={produtoOrdem.id || index} className="border-b pb-2 last:border-b-0">
-                  <div><strong>Produto:</strong> {produtoOrdem.produto?.descricao || "Não informado"}</div>
-                  <div><strong>Quantidade:</strong> {produtoOrdem.quantidade}</div>
-                  <div><strong>Valor Unitário:</strong> {(() => {
-                    const valor = typeof produtoOrdem.valor_unitario === 'string' ? parseFloat(produtoOrdem.valor_unitario) : produtoOrdem.valor_unitario
-                    return valor && !isNaN(valor) ? `R$ ${valor.toFixed(2)}` : "R$ 0,00"
-                  })()}</div>
-                </div>
-              ))}
+              {ordemServico.produtos.map((produtoOrdem, index) => {
+                const valorUnitario = typeof produtoOrdem.valor_unitario === 'string' ? parseFloat(produtoOrdem.valor_unitario) : produtoOrdem.valor_unitario
+                const total = (valorUnitario || 0) * produtoOrdem.quantidade
+                
+                return (
+                  <div key={produtoOrdem.id || index} className="border-b pb-4 last:border-b-0">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <div><strong>Produto:</strong> {produtoOrdem.produto?.descricao || "Não informado"}</div>
+                        <div><strong>Quantidade:</strong> {produtoOrdem.quantidade}</div>
+                        <div><strong>Valor Unitário:</strong> R$ {(valorUnitario || 0).toFixed(2)}</div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-lg font-semibold">
+                          <strong>Total:</strong> R$ {total.toFixed(2)}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
             </CardContent>
           </Card>
         )}
@@ -358,6 +572,32 @@ export default function OrdemServicoViewPage({ params }: OrdemServicoViewPagePro
           </Card>
         )}
 
+        {/* Feedback */}
+        {ordemServico.feedback && ordemServico.feedback.length > 0 && (
+          <Card className="md:col-span-2">
+            <CardHeader>
+              <CardTitle>Feedback</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {ordemServico.feedback.map((feedbackItem, index) => (
+                <div key={feedbackItem.id || index} className="border-b pb-4 last:border-b-0">
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <strong>Cliente:</strong> {feedbackItem.cliente?.razao_social || feedbackItem.cliente?.nome_fantasia || "Não informado"}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      {feedbackItem.created_at ? format(new Date(feedbackItem.created_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR }) : ""}
+                    </div>
+                  </div>
+                  <div className="bg-gray-50 p-3 rounded">
+                    <p>{feedbackItem.descricao}</p>
+                  </div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        )}
+
         <Card className="md:col-span-2">
           <CardHeader>
             <CardTitle>Informações do Sistema</CardTitle>
@@ -389,6 +629,110 @@ export default function OrdemServicoViewPage({ params }: OrdemServicoViewPagePro
           />
         </div>
       )}
+
+      {/* Dialog para fechamento da ordem */}
+      <Dialog open={closeDialogOpen} onOpenChange={setCloseDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Fechar Ordem de Serviço</DialogTitle>
+            <DialogDescription>
+              Selecione o status final e adicione observações sobre o fechamento da ordem.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-3">
+              <Label>Status Final *</Label>
+              <RadioGroup
+                value={closeData.status_final}
+                onValueChange={(value) => setCloseData({ ...closeData, status_final: value })}
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="Concluída" id="concluida" />
+                  <Label htmlFor="concluida" className="flex items-center">
+                    <CheckCircle2 className="mr-2 h-4 w-4 text-green-600" />
+                    Concluída
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="Cancelada" id="cancelada" />
+                  <Label htmlFor="cancelada" className="flex items-center">
+                    <XCircle className="mr-2 h-4 w-4 text-red-600" />
+                    Cancelada
+                  </Label>
+                </div>
+              </RadioGroup>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="observacoes">Observações do Fechamento</Label>
+              <Textarea
+                id="observacoes"
+                value={closeData.observacoes_fechamento}
+                onChange={(e) => setCloseData({ ...closeData, observacoes_fechamento: e.target.value })}
+                placeholder="Descreva motivos, detalhes ou observações sobre o fechamento..."
+                rows={4}
+              />
+            </div>
+
+            {podeFechar && !podeFechar.pode_fechar && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+                <div className="flex items-center text-red-800">
+                  <AlertTriangle className="mr-2 h-4 w-4" />
+                  <span className="font-medium">Atenção</span>
+                </div>
+                <p className="text-sm text-red-700 mt-1">
+                  Esta ordem possui impedimentos para fechamento. Certifique-se de que todos os requisitos foram atendidos.
+                </p>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCloseDialogOpen(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={handleCloseOrder} disabled={!closeData.status_final}>
+              Continuar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog de confirmação */}
+      <AlertDialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar Fechamento</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja fechar esta ordem de serviço como{" "}
+              <strong>"{closeData.status_final}"</strong>?
+              
+              {closeData.observacoes_fechamento && (
+                <div className="mt-3 p-3 bg-gray-50 rounded-md">
+                  <p className="text-sm text-gray-700">
+                    <strong>Observações:</strong> {closeData.observacoes_fechamento}
+                  </p>
+                </div>
+              )}
+              
+              <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-md">
+                <p className="text-sm text-amber-800">
+                  <strong>Importante:</strong> Esta ação não pode ser desfeita. A ordem será movida automaticamente no Kanban e seu status será alterado permanentemente.
+                </p>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmCloseOrder}
+              disabled={closing}
+              className={closeData.status_final === 'Concluída' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}
+            >
+              {closing ? 'Fechando...' : `Fechar como ${closeData.status_final}`}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
