@@ -1,7 +1,7 @@
 import type { EmpresaMae, LoginCredentials, LoginResponse, Produto, AliquotaProduto, Veiculo, MarcaVeiculo, ModeloVeiculo, GrupoCliente, Cliente, Fornecedor, FornecedorContato, FornecedorTributacao, FornecedorEndereco, FornecedorRepresentante, FornecedorDadoBancario, TipoPessoa, IndicadorIe, TipoContato, TipoEndereco, TipoRepresentante, Usuario, ChatMensagem, Conversa, MensagensNaoLidas, Servico, OrdemServico, CategoriaServico, UnidadeCobranca, StatusOrdemServico, FormaPagamento } from "./types"
 import { getEmpresaId } from "./auth"
 
-const API_BASE_URL = "https://sistema-diesel-2025-main-vv6tyd.laravel.cloud/api"
+const API_BASE_URL = "https://sistemadieselbackend.skalacode.com/api"
 
 // CORS bypass proxy for local development
 export const getApiUrl = (endpoint: string) => {
